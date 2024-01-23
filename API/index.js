@@ -1103,16 +1103,24 @@ const patientFeedback = {
 };
 
 app.get("/api/doctors", (req, res) => {
-  const { city } = req.query;
-  if (city) {
-    const filteredDoctors = doctorsData.filter(
-      (doctor) => doctor.city.toLowerCase() === city.toLowerCase()
-    );
+  const { city, language } = req.query;
+
+  if (city || language) {
+    const filteredDoctors = doctorsData.filter((doctor) => {
+      const matchesCity = !city || doctor.city.toLowerCase() === city.toLowerCase();
+      const matchesLanguage =
+        !language ||
+        doctor.languages.map((lang) => lang.toLowerCase()).includes(language.toLowerCase());
+
+      return matchesCity || matchesLanguage;
+    });
+
     res.json(filteredDoctors);
   } else {
-    res.status(400).json({ error: "City parameter is required." });
+    res.status(400).json({ error: "City or language parameter is required." });
   }
 });
+
 
 app.get("/api/patients", (req, res) => {
   res.json(patientFeedback);
