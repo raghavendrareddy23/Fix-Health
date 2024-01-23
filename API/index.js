@@ -1103,23 +1103,31 @@ const patientFeedback = {
 };
 
 app.get("/api/doctors", (req, res) => {
-  const { city, language } = req.query;
+  try {
+    const { city, language } = req.query;
 
-  if (city || language) {
-    const filteredDoctors = doctorsData.filter((doctor) => {
-      const matchesCity = !city || doctor.city.toLowerCase() === city.toLowerCase();
-      const matchesLanguage =
-        !language ||
-        doctor.languages.map((lang) => lang.toLowerCase()).includes(language.toLowerCase());
+    if (city || language) {
+      const filteredDoctors = doctorsData.filter((doctor) => {
+        const matchesCity = !city || doctor.city.toLowerCase() === city.toLowerCase();
+        const matchesLanguage =
+          !language ||
+          doctor.languages.map((lang) => lang.toLowerCase()).includes(language.toLowerCase());
 
-      return matchesCity || matchesLanguage;
-    });
+        return matchesCity || matchesLanguage;
+      });
 
-    res.json(filteredDoctors);
-  } else {
-    res.status(400).json({ error: "City or language parameter is required." });
+      res.json(filteredDoctors);
+    } else {
+      // If no city or language provided, return all doctors
+      res.json(doctorsData);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error." });
   }
 });
+
+
 
 
 app.get("/api/patients", (req, res) => {
